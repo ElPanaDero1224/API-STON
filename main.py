@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException, Depends
+from database import database
 
 #modelos de la API
 
@@ -39,9 +40,35 @@ app = FastAPI(
     version="1.0.0"
 )
 
+
+# Eventos para manejar la conexión de la base de datos
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
+
+# Endpoint de verificación de salud
+@app.get("/health", tags=["health"])
+async def health_check():
+    try:
+        # Ejecuta una consulta simple para verificar la conexión
+        await database.execute("SELECT 1")
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Error de conexión a la base de datos: {str(e)}"
+        )
+
 # bd en memoria
 usuariosbd = []
 inventariobd = []
+
+
+
 
 # endpoint para agregar un nuevo usuario
 @app.post("/agregarUsuario/", tags=["Usuarios"])
