@@ -7,7 +7,7 @@ load_dotenv()
 from db.connection import engine, Base
 """ from models.db import Users, Products, Statistics """
 from routers.users import usersRouter
-""" from routers.products import productsRouter """
+from routers.products import productsRouter
 
 # Inicialización de la API
 app = FastAPI(
@@ -29,4 +29,4 @@ def health_check():
         return JSONResponse(status_code=500, content={"message": "Error de conexión a la base de datos", "Exception": str(e)})
     
 app.include_router(usersRouter)
-""" app.include_router(productsRouter) """
+app.include_router(productsRouter)

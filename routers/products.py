@@ -1,25 +1,62 @@
-""" from models.pydantic import products, statistics
-from fastapi import APIRouter
+from models.pydantic import statistics
+from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from models.db import Products, Statistics
+from models.db import Productos
+""" Statistics """
 from db.connection import Session
 from typing import List
+from sqlalchemy import or_
 
 productsRouter = APIRouter()
 
-# endpoint para obtener el inventario
-@productsRouter.get("/inventory/", response_model=List[products], tags=["Inventario"])
-def get_inventory():
-    db=Session()
+# endpoint para obtener productos de acuerdo a busquedas
+@productsRouter.get("/inventory/", tags=["Inventario"])
+def get_inventory(search: str = Query(None, description="Término para buscar en nombre o material")):
+    db = Session()
     try:
-        inventario = db.query(Products).all()
-        return JSONResponse(content=jsonable_encoder(inventario))
+        # Construimos la consulta base seleccionando solo los campos necesarios
+        query = db.query(
+            Productos.nombre,
+            Productos.precioUnitario,
+            Productos.material
+        )
+        
+        # Aplicamos filtro si hay término de búsqueda
+        if search:
+            query = query.filter(
+                or_(
+                    Productos.nombre.ilike(f"%{search}%"),
+                    Productos.material.ilike(f"%{search}%")
+                )
+            )
+        
+        # Ejecutamos la consulta
+        resultados = query.all()
+        
+        # Formateamos la respuesta
+        productos = [{
+            "nombre": item.nombre,
+            "precio": float(item.precioUnitario),  # Convertimos a float para JSON
+            "material": item.material
+        } for item in resultados]
+        
+        return JSONResponse(content=productos)
+    
     except Exception as e:
-        return JSONResponse(status_code=500, content={"message": "Error al obtener el inventario", "exception": str(e)})
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Error al obtener productos", "error": str(e)}
+        )
     finally:
         db.close()
 
+
+
+
+
+
+""" 
 # endpoint para obtener los detalles de un producto
 @productsRouter.get("/productDetails/{productID}", response_model=products, tags=["Inventario"])
 def get_details(productID: int):
@@ -92,4 +129,4 @@ def statistics(productID: int):
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": "Error al obtener las estadísticas del producto", "exception": str(e)})
     finally:
-        db.close() """
+        db.close()  """
