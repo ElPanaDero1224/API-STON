@@ -150,23 +150,3 @@ def delete_empresa(credenciales: credentials):
         )
     finally:
         db.close()
-
-""" 
-
-# endpoint para eliminar un usuario
-@usersRouter.delete("/delUser/{username}", tags=["Usuarios"])
-def delete_user(username: str):
-    db=Session()
-    try:
-        user = db.query(Users).filter(Users.username == username).first()
-        if user:
-            db.delete(user)
-            db.commit()
-            return JSONResponse(content={"message": "Usuario eliminado correctamente"})
-        else:
-            return JSONResponse(status_code=404, content={"message": "Usuario no encontrado"})
-    except Exception as e:
-        db.rollback()
-        return JSONResponse(status_code=500, content={"message": "Error al eliminar el usuario", "exception": str(e)})
-    finally:
-        db.close() """
