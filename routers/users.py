@@ -1,10 +1,9 @@
-from models.pydantic import  EmpresaModel
-""" user, credentials, """
+from models.pydantic import  EmpresaModel, credentials
+""" user"""
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from models.db import Empresa
-""" Users, """
+from models.db import Empresa, Users 
 from db.connection import Session
 from passlib.context import CryptContext
 
@@ -69,6 +68,28 @@ def add_empresa(empresa: EmpresaModel):
     finally:
         db.close()
 
+
+
+@usersRouter.post("/validateEmpresa/", tags=["Autenticación"])
+def validate_empresa(credenciales: credentials):  # Ahora usa el nuevo modelo
+    db = Session()
+    try:
+        empresa = db.query(Empresa).filter(
+            Empresa.correo == credenciales.correo,  # Usa el campo correo
+            Empresa.contrasenia == credenciales.contrasenia  # Usa contrasenia
+        ).first()
+        
+        if empresa:
+            return JSONResponse(
+                status_code=200,
+                content={"message": "Autenticación exitosa"}
+            )
+        return JSONResponse(
+            status_code=401,
+            content={"message": "Correo o contraseña incorrectos"}
+        )
+    finally:
+        db.close()
 
 """ 
 # Endpoint para validar credenciales

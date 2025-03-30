@@ -2,14 +2,14 @@ from db.connection import Base
 from sqlalchemy import Column, Integer, String, JSON, ForeignKey, DateTime, TIMESTAMP
 from sqlalchemy.sql import func
 
-""" class Users(Base):
+class Users(Base):
     __tablename__ = "usuarios"
-    id = Column(Integer, primary_key=True, autoincrement="auto")
-    name = Column(String)
-    lastname = Column(String)
-    username = Column(String, unique=True)
-    password = Column(String)
- """
+    id = Column(Integer, primary_key=True, autoincrement=True)  # "auto" no es necesario
+    name = Column(String(100))  # Longitud máxima para nombres
+    lastname = Column(String(100))  # Longitud máxima para apellidos
+    username = Column(String(50), unique=True)  # Longitud para username
+    password = Column(String(255))  # Longitud adecuada para contraseñas (hasheadas o no)
+
 
 class Empresa(Base):
     __tablename__ = "empresa"
@@ -25,6 +25,8 @@ class Empresa(Base):
     direccion = Column(String(300))
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
+
+    
 """ 
 class Products(Base):
     __tablename__ = "inventario"
