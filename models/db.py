@@ -1,6 +1,7 @@
 from db.connection import Base
 from sqlalchemy import Column, Integer, String, JSON, ForeignKey, DateTime, TIMESTAMP, Text, Numeric
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 class Users(Base):
     __tablename__ = "usuarios"
@@ -26,6 +27,12 @@ class Empresa(Base):
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
+class Inventario(Base):
+    __tablename__ = 'inventarios'
+    id = Column(Integer, primary_key=True)
+    nombre = Column(String(255))
+    
+
 class Productos(Base):
     __tablename__ = "productos"
         
@@ -43,6 +50,8 @@ class Productos(Base):
         # Campos de timestamp
     created_at = Column(TIMESTAMP, server_default=func.now())
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())   
+
+    inventario = relationship("Inventario")
 
 
 
