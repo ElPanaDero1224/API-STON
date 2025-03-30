@@ -1,18 +1,20 @@
-from models.pydantic import user, credentials, EmpresaModel
+from models.pydantic import  EmpresaModel
+""" user, credentials, """
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from models.db import Users, Empresa
+from models.db import Empresa
+""" Users, """
 from db.connection import Session
 from passlib.context import CryptContext
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 
 usersRouter = APIRouter()
 
 # Endpoint para agregar un nuevo usuario
-@usersRouter.post("/addUser/", tags=["Usuarios"])
+
+""" @usersRouter.post("/addUser/", tags=["Usuarios"])
 def add_user(user: user):
     db=Session()
     try:
@@ -24,7 +26,7 @@ def add_user(user: user):
         return JSONResponse(status_code=500, content={"message": "Error al agregar el usuario", "exception": str(e)})
     finally:
         db.close()
-
+ """
 
 #enpoint para agregarlo a la empresa
 
@@ -32,14 +34,12 @@ def add_user(user: user):
 def add_empresa(empresa: EmpresaModel):
     db = Session()
     try:
-        hashed_password = pwd_context.hash(empresa.contrasenia)
-        
         db_empresa = Empresa(
             numeroRegistro=empresa.numeroRegistro,
             nombre=empresa.nombre,
             tipo=empresa.tipo,
             correo=empresa.correo,
-            contrasenia=hashed_password,
+            contrasenia=empresa.contrasenia,  # Contraseña en texto plano
             numTelefono=empresa.numTelefono,
             pais=empresa.pais,
             region=empresa.region,
@@ -68,8 +68,9 @@ def add_empresa(empresa: EmpresaModel):
         )
     finally:
         db.close()
-     
 
+
+""" 
 # Endpoint para validar credenciales
 @usersRouter.post("/credentialValidator/", tags=["Autenticación"])
 def validate(credentials: credentials):
@@ -102,4 +103,4 @@ def delete_user(username: str):
         db.rollback()
         return JSONResponse(status_code=500, content={"message": "Error al eliminar el usuario", "exception": str(e)})
     finally:
-        db.close()
+        db.close() """

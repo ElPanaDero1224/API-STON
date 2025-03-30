@@ -1,4 +1,4 @@
-from models.pydantic import products, statistics
+""" from models.pydantic import products, statistics
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -92,4 +92,4 @@ def statistics(productID: int):
     except Exception as e:
         return JSONResponse(status_code=500, content={"message": "Error al obtener las estadísticas del producto", "exception": str(e)})
     finally:
-        db.close()
+        db.close() """
