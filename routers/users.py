@@ -1,9 +1,13 @@
-from models.pydantic import user, credentials
+from models.pydantic import user, credentials, EmpresaModel
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from models.db import Users
+from models.db import Users, Empresa
 from db.connection import Session
+from passlib.context import CryptContext
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 
 usersRouter = APIRouter()
 
@@ -20,6 +24,51 @@ def add_user(user: user):
         return JSONResponse(status_code=500, content={"message": "Error al agregar el usuario", "exception": str(e)})
     finally:
         db.close()
+
+
+#enpoint para agregarlo a la empresa
+
+@usersRouter.post("/addEmpresa/", tags=["Empresas"])
+def add_empresa(empresa: EmpresaModel):
+    db = Session()
+    try:
+        hashed_password = pwd_context.hash(empresa.contrasenia)
+        
+        db_empresa = Empresa(
+            numeroRegistro=empresa.numeroRegistro,
+            nombre=empresa.nombre,
+            tipo=empresa.tipo,
+            correo=empresa.correo,
+            contrasenia=hashed_password,
+            numTelefono=empresa.numTelefono,
+            pais=empresa.pais,
+            region=empresa.region,
+            direccion=empresa.direccion
+        )
+        
+        db.add(db_empresa)
+        db.commit()
+        db.refresh(db_empresa)
+        
+        return JSONResponse(
+            status_code=201,
+            content={
+                "message": "Empresa registrada con éxito",
+                "data": jsonable_encoder(db_empresa)
+            }
+        )
+    except Exception as e:
+        db.rollback()
+        return JSONResponse(
+            status_code=400,
+            content={
+                "message": "Error al registrar la empresa",
+                "error": str(e)
+            }
+        )
+    finally:
+        db.close()
+     
 
 # Endpoint para validar credenciales
 @usersRouter.post("/credentialValidator/", tags=["Autenticación"])

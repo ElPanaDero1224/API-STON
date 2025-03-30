@@ -9,7 +9,20 @@ class user(BaseModel):
     lastname: str = Field(..., min_length=1, max_length=85, description="Apellido, mínimo 1 caracter, máximo 85")
     username: str = Field(..., min_length=1, max_length=50, description="Nombre de usuario, mínimo 1 caracter, máximo 50")
     password: str = Field(..., min_length=8, strip_whitespace=True, description="Contraseña de al menos 8 caracteres")
-
+    
+class EmpresaModel(BaseModel):
+    numeroRegistro: str = Field(..., min_length=1, max_length=14)
+    nombre: str = Field(..., min_length=1, max_length=255)
+    tipo: str = Field(..., min_length=1, max_length=255)
+    correo: EmailStr
+    contrasenia: str = Field(..., min_length=8)
+    numTelefono: str = Field(..., min_length=1, max_length=20)
+    pais: str = Field(..., min_length=1, max_length=50)
+    region: str = Field(..., min_length=1, max_length=50)
+    direccion: str = Field(..., min_length=1, max_length=300)
+    
+    class Config:
+        from_attributes = True
 #modelo para validar credenciales
 class credentials(BaseModel):
     username: str = Field(..., min_length=1, max_length=50, description="Nombre de usuario, mínimo 1 caracter, máximo 50")
