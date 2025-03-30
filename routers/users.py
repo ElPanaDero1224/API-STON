@@ -91,22 +91,67 @@ def validate_empresa(credenciales: credentials):  # Ahora usa el nuevo modelo
     finally:
         db.close()
 
-""" 
-# Endpoint para validar credenciales
-@usersRouter.post("/credentialValidator/", tags=["Autenticación"])
-def validate(credentials: credentials):
-    db=Session()
+
+@usersRouter.delete("/deleteEmpresa", tags=["Empresas"])
+def delete_empresa(credenciales: credentials):
+    db = Session()
     try:
-        user = db.query(Users).filter(Users.username == credentials.username, Users.password == credentials.password).first()
-        if user:
-            return JSONResponse(content={"message": "Credenciales validas"})
-        else:
-            return JSONResponse(status_code=503, content={"message": "Usuario o contraseña incorrecta"})
+        # 1. Validación estricta de credenciales (case-sensitive)
+        empresa = db.query(Empresa).filter(
+            Empresa.correo == credenciales.correo,  # Comparación exacta de mayúsculas/minúsculas
+            Empresa.contrasenia == credenciales.contrasenia  # Comparación exacta
+        ).first()
+
+        if not empresa:
+            return JSONResponse(
+                status_code=401,
+                content={
+                    "message": "Credenciales inválidas",
+                    "hint": "Verifique mayúsculas/minúsculas y caracteres especiales"
+                }
+            )
+
+        # 2. Eliminación de la empresa
+        db.delete(empresa)
+        db.commit()
+
+        # 3. Verificación de eliminación
+        empresa_eliminada = db.query(Empresa).filter(
+            Empresa.correo == credenciales.correo
+        ).first()
+
+        if empresa_eliminada:
+            db.rollback()
+            return JSONResponse(
+                status_code=500,
+                content={"message": "No se pudo completar la eliminación"}
+            )
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "message": "Empresa eliminada correctamente",
+                "empresa": {
+                    "nombre": empresa.nombre,
+                    "correo": empresa.correo,
+                }
+            }
+        )
+
     except Exception as e:
         db.rollback()
-        return JSONResponse(status_code=500, content={"message": "Error al validar las credenciales", "exception": str(e)})
+        return JSONResponse(
+            status_code=500,
+            content={
+                "message": "Error al eliminar la empresa",
+                "error": str(e),
+                "suggestion": "Contacte al administrador si el problema persiste"
+            }
+        )
     finally:
         db.close()
+
+""" 
 
 # endpoint para eliminar un usuario
 @usersRouter.delete("/delUser/{username}", tags=["Usuarios"])
