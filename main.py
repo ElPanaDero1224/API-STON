@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
+from routers.sales import ventasRouter
 
 load_dotenv()
 
@@ -17,6 +18,10 @@ app = FastAPI(
 )
 
 Base.metadata.create_all(bind=engine)
+
+app.include_router(ventasRouter)
+app.include_router(usersRouter)
+app.include_router(productsRouter)
 
 # Endpoint de verificación de salud
 @app.get("/healthCheck", tags=["health"])
